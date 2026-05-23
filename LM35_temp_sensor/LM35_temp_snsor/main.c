@@ -10,6 +10,7 @@
 #include <util/delay.h>
 #include "lcd.h"
 #include "adc.h"
+#include "UART.h"
 
 void my_delay_ms(void)
 {
@@ -33,40 +34,6 @@ void my_delay_ms(void)
 		// Overflow check command
 		while(!(TIFR0 & (1<<TOV0)));
 		TIFR0 |= (1<<TOV0); // Clearing the bit by writing to 1
-	}
-}
-
-void uart_init()
-{
-	/*Step 1: Load baud rate : 9600*/
-	UBRR0H = 0;
-	UBRR0L = 103;
-	/*Step 2: Enable transmitter and Receiver*/
-	UCSR0B |= ((1 <<TXEN0 ) | (1 << RXEN0));
-	/*Step 3: Choosing data frame format*/
-	UCSR0B &= ~(1 << UCSZ02);
-	UCSR0C |= ((1 << UCSZ01) | (1 << UCSZ00));
-	/*Step 4: Parity select*/
-	UCSR0C &= ~((1 << UPM00) | (1 << UPM01));
-	/*Step 5: Stop bit select*/
-	UCSR0C &= ~(1 << USBS0);
-}
-
-/*Function to transmit data*/
-void uart_transmit(char data)
-{
-	/*Checking if buffer is ready to transmit data*/
-	while (!(UCSR0A & (1 << UDRE0)));
-	
-	/*Feed data to the data buffer*/
-	UDR0 = data;
-}
-
-void uart_TxString(const char *str)
-{
-	while (*str)
-	{
-		uart_transmit(*str++);
 	}
 }
 
